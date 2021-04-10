@@ -64,5 +64,6 @@ jobs:
         uses: Roang-zero1/github-create-release-action@master
         with:
           version_regex: ^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+
+          changelog_file: "CHANGELOG.rst"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
