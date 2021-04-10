@@ -1,5 +1,7 @@
+import os
 import zipfile
 from tempfile import NamedTemporaryFile
+from urllib.parse import quote
 
 import simplebot
 from deltachat import Message
@@ -19,6 +21,7 @@ def filter_messages(message, replies, bot) -> None:
             replies.add(filename=message.filename, viewtype="sticker")
         if signal.is_pack(message.text):
             pack_name, stickers = signal.get_stickers(message.text)
+            pack_name = quote(pack_name, safe="")
             with NamedTemporaryFile(
                 dir=bot.account.get_blobdir(),
                 prefix=pack_name + "-",
@@ -35,6 +38,7 @@ def filter_messages(message, replies, bot) -> None:
                         demojize(sticker.emoji, delimiters=("", "")),
                         sticker.emoji,
                     )
+                    name = os.path.join(pack_name, name)
                     zfile.writestr(name, sticker.image_data)
             replies.add(filename=zip_path, quote=message)
 
