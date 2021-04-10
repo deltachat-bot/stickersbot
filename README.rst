@@ -21,6 +21,10 @@
 
 `SimpleBot`_ plugin that allows users to get stickers packs and convert normal images to stickers.
 
+To get sticker packs, browse https://signalstickers.com/ and copy the URL of the pack you want (the link in the "+ Add to Signal" button, an URL starting with ``https://signal.art/addstickers``) and send the pack URL to the bot in private, the bot will send you a zip with the sticker pack.
+
+To create an sticker from a normal image send the image to the bot and it will send you back the image as sticker.
+
 Install
 -------
 
