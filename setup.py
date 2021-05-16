@@ -40,7 +40,7 @@ if __name__ == "__main__":
         author="The SimpleBot Contributors",
         author_email="adbenitez@nauta.cu",
         url=URL,
-        keywords="simplebot plugin deltachat",
+        keywords="simplebot plugin deltachat stickers",
         license="MPL",
         classifiers=[
             "Development Status :: 4 - Beta",
