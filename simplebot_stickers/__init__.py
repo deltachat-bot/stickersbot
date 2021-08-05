@@ -1,3 +1,5 @@
+"""Plugin's filters and commands definitions."""
+
 import os
 import zipfile
 from tempfile import NamedTemporaryFile
@@ -48,8 +50,8 @@ def filter_messages(message, replies, bot) -> None:
             replies.add(filename=zip_path, quote=message)
 
 
-@simplebot.command
-def sticker(message: Message, replies: Replies) -> None:
+@simplebot.command(name="/sticker")
+def sticker_command(message: Message, replies: Replies) -> None:
     """Send attached or quoted image as sticker."""
     file = None
     if message.filemime.startswith("image/"):

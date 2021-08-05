@@ -1,7 +1,6 @@
 """Setup module installation."""
 
 import os
-import re
 
 from setuptools import find_packages, setup
 
