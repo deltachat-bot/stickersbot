@@ -22,7 +22,11 @@ except DistributionNotFound:
 
 @simplebot.filter
 def filter_messages(message, replies, bot) -> None:
-    """Process messages with sticker packs URL or images."""
+    """Send me an image and I will convert it to sticker for you.
+
+    Also, you can send me an URL of a Signal sticker pack, and I will send you the pack, for example, send me:
+    https://signal.art/addstickers/#pack_id=59d3387717104e38a67f838e7ad0208c&pack_key=56af35841874d6fe82fa2085e8e5ed74dba5d187af007d3b4d8a3711dd722ad7
+    """
     if not message.chat.is_group():
         if message.filemime.startswith("image/"):
             replies.add(filename=message.filename, viewtype="sticker")
@@ -48,15 +52,3 @@ def filter_messages(message, replies, bot) -> None:
                     name = os.path.join(pack_name, name)
                     zfile.writestr(name, sticker.image_data)
             replies.add(filename=zip_path, quote=message)
-
-
-@simplebot.command(name="/sticker")
-def sticker_command(message: Message, replies: Replies) -> None:
-    """Send attached or quoted image as sticker."""
-    file = None
-    if message.filemime.startswith("image/"):
-        file = message.filename
-    elif message.quote and message.quote.filemime.startswith("image/"):
-        file = message.quote.filename
-    if file:
-        replies.add(filename=file, viewtype="sticker")
