@@ -9,7 +9,7 @@ import simplebot
 from deltachat import Message
 from emoji import demojize
 from pkg_resources import DistributionNotFound, get_distribution
-from simplebot.bot import Replies
+from simplebot.bot import DeltaBot, Replies
 
 from simplebot_stickers import signal
 
@@ -21,7 +21,7 @@ except DistributionNotFound:
 
 
 @simplebot.filter
-def filter_messages(message, replies, bot) -> None:
+def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
     """Send me an image and I will convert it to sticker for you.
 
     Also, you can send me an URL of a Signal sticker pack, and I will send you the pack, for example, send me:
