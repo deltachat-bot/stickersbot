@@ -13,8 +13,8 @@
 .. image:: https://img.shields.io/pypi/l/simplebot_stickers.svg
    :target: https://pypi.org/project/simplebot_stickers
 
-.. image:: https://github.com/simplebot-org/simplebot_stickers/actions/workflows/python-ci.yml/badge.svg
-   :target: https://github.com/simplebot-org/simplebot_stickers/actions/workflows/python-ci.yml
+.. image:: https://github.com/adbenitez/simplebot_stickers/actions/workflows/python-ci.yml/badge.svg
+   :target: https://github.com/adbenitez/simplebot_stickers/actions/workflows/python-ci.yml
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black

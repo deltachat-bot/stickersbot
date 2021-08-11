@@ -13,4 +13,4 @@ Changelog
 - initial release
 
 
-.. _Unreleased: https://github.com/simplebot-org/simplebot_stickers/compare/v1.0.0...HEAD
+.. _Unreleased: https://github.com/adbenitez/simplebot_stickers/compare/v1.0.0...HEAD
