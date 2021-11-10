@@ -44,11 +44,9 @@ def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
                 zip_path, "w", compression=zipfile.ZIP_DEFLATED
             ) as zfile:
                 for sticker in stickers:
-                    name = "{}.{}+{}.webp".format(
-                        sticker.id,
-                        demojize(sticker.emoji, delimiters=("", "")),
-                        sticker.emoji,
+                    desc = demojize(sticker.emoji, delimiters=("", ""))
+                    name = os.path.join(
+                        pack_name, f"{sticker.id}.{desc}+{sticker.emoji}.webp"
                     )
-                    name = os.path.join(pack_name, name)
                     zfile.writestr(name, sticker.image_data)
             replies.add(filename=zip_path, quote=message)
