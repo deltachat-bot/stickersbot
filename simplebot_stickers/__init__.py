@@ -37,11 +37,11 @@ def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
         pack_url, sticker = signal.get_random_sticker(message.text)
         if pack_url:
             replies.add(
-                text=pack_url,
                 filename=f"{message.text}.webp",
                 bytefile=io.BytesIO(sticker),
                 viewtype="sticker",
             )
+            replies.add(text=pack_url)
         else:
             replies.add(text=f"❌ No sticker found for: {message.text!r}")
     elif message.text:

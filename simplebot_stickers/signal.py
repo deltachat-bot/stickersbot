@@ -125,7 +125,7 @@ def search(query: str) -> list:
         if query in pack["manifest"]["title"] or query in _get_tags(pack):
             packs.append(pack)
             count += 1
-            if count > 50:
+            if count > 100:
                 break
     return packs
 
