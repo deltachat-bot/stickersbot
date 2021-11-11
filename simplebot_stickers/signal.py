@@ -25,7 +25,7 @@ _session.headers.update(
     }
 )
 _session.request = functools.partial(_session.request, timeout=15)  # type: ignore
-MAX_PACK_SIZE = 1024**2 * 20
+MAX_PACK_SIZE = 1024 ** 2 * 20
 
 
 async def _get_pack(pack_id: str, pack_key: str) -> StickerPack:
