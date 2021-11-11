@@ -50,3 +50,17 @@ def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
             replies.add(text=f"Results for: {message.text!r}", html=html)
         else:
             replies.add(text=f"❌ No results for: {message.text!r}")
+
+
+@simplebot.command
+def info(payload: str, message: Message, replies: Replies) -> None:
+    """Get pack info.
+
+    Example:
+    /info sgnl://addstickers/?pack_id=59d338...&pack_key=56af35...
+    """
+    if signal.is_pack(payload):
+        text, cover = signal.get_pack_metadata(payload)
+        replies.add(text=text, filename="cover.webp", bytefile=io.BytesIO(cover))
+    else:
+        replies.add("❌ Unknow pack URL", quote=message)

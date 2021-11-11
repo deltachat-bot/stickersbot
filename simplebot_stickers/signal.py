@@ -95,6 +95,18 @@ def is_pack(url: str) -> bool:
     return url.startswith(("https://signal.art/addstickers/", "sgnl://addstickers/"))
 
 
+def get_pack_metadata(pack_url: str) -> tuple:
+    pack = _get_cached_pack(*_parse_url(pack_url))
+    text = f"Title: {pack.title or 'NO TITLE'}\nAuthor: {pack.author or 'ANONYMOUS'}\nStickers: {len(pack.stickers)}"
+    for mpack in _get_metadata():
+        if mpack["meta"]["id"] == pack.id:
+            tags = _get_tags(mpack)
+            if tags:
+                text += f"\nTags: {', '.join(tags)}"
+            break
+    return text, _get_cached_sticker(pack.cover.id, pack.id, pack.key)
+
+
 def download_pack(base_dir: str, pack_url: str) -> str:
     pack = _get_cached_pack(*_parse_url(pack_url))
     pack_name = quote(pack.title, safe="")
@@ -137,10 +149,12 @@ def search_html(addr: str, query: str) -> str:
     html = ""
     for pack in search(query):
         url = _get_pack_url(pack["meta"]["id"], pack["meta"]["key"])
+        more_url = f"mailto:{addr}?body=/info+{quote_plus(url)}"
         url = f"mailto:{addr}?body={quote_plus(url)}"
         title = pack["manifest"].get("title", "NO TITLE")
         author = pack["manifest"].get("author", "ANONYMOUS")
-        html += f'{title} - by {author}<br/><a href="{url}">DOWNLOAD</a><br/><hr/>'
+        tags = ", ".join(_get_tags(pack))
+        html += f'Title: {title}<br/>Author: {author}<br/>Tags: {tags}<br/><a href="{more_url}">MORE</a> | <a href="{url}">DOWNLOAD</a><br/><hr/>'
     return html
 
 
