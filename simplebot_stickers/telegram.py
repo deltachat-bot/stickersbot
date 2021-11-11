@@ -9,9 +9,8 @@ from lottie.utils.stripper import float_strip
 
 
 def convert(path: str) -> str:
-    with NamedTemporaryFile(
-        os.path.dirname(path), suffix=".webp", delete=False
-    ) as file:
+    prefix = os.path.join(os.path.dirname(path), "sticker")
+    with NamedTemporaryFile(prefix=prefix, suffix=".webp", delete=False) as file:
         outpath = file.name
     anim = importers["lottie"].process(path)
     float_strip(anim)
