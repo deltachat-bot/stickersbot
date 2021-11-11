@@ -8,7 +8,7 @@ from deltachat import Message
 from emoji import get_emoji_regexp
 from simplebot.bot import DeltaBot, Replies
 
-from . import signal
+from . import signal, telegram
 from .util import getdefault, sizeof_fmt, upload
 
 DEF_MAX_PACK_SIZE = str(1024 ** 2 * 15)
@@ -22,7 +22,7 @@ def deltabot_init(bot: DeltaBot) -> None:
 
 @simplebot.filter
 def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
-    """Send me an image and I will convert it to sticker for you.
+    """Send me an image or Telegram animated sticker and I will convert it to a Delta Chat sticker for you.
 
     Send me an emoji to get an sticker representing that emoji.
 
@@ -36,6 +36,8 @@ def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
 
     if message.filemime.startswith("image/"):
         replies.add(filename=message.filename, viewtype="sticker")
+    if telegram.is_sticker(message.filename):
+        replies.add(filename=telegram.convert(message.filename), viewtype="sticker")
     elif signal.is_pack(message.text):
         _process_signal_pack(bot, message, replies)
     elif get_emoji_regexp().fullmatch(message.text):
