@@ -29,6 +29,10 @@ Send any text to the bot to search packs matching the given text.
 
 Send an emoji to the bot to get a random sticker associated with that emoji.
 
+By default the bot will upload packs that are too big to https://0x0.st/, you can change the cloud server with::
+
+    simplebot -a bot@example.com db -s simplebot_stickers/cloud "https://example.com"
+
 Install
 -------
 

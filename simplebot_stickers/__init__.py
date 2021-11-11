@@ -9,6 +9,15 @@ from emoji import get_emoji_regexp
 from simplebot.bot import DeltaBot, Replies
 
 from . import signal
+from .util import getdefault, sizeof_fmt, upload
+
+DEF_MAX_PACK_SIZE = str(1024 ** 2 * 15)
+
+
+@simplebot.hookimpl
+def deltabot_init(bot: DeltaBot) -> None:
+    getdefault(bot, "cloud", "https://0x0.st/")
+    getdefault(bot, "max_size", DEF_MAX_PACK_SIZE)
 
 
 @simplebot.filter
@@ -28,11 +37,7 @@ def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
     if message.filemime.startswith("image/"):
         replies.add(filename=message.filename, viewtype="sticker")
     elif signal.is_pack(message.text):
-        path = signal.download_pack(bot.account.get_blobdir(), message.text)
-        name = os.path.basename(path)
-        with open(path, "rb") as file:
-            replies.add(filename=name, bytefile=io.BytesIO(file.read()), quote=message)
-        os.remove(path)
+        _process_signal_pack(bot, message, replies)
     elif get_emoji_regexp().fullmatch(message.text):
         pack_url, sticker = signal.get_random_sticker(message.text)
         if pack_url:
@@ -64,3 +69,22 @@ def info(payload: str, message: Message, replies: Replies) -> None:
         replies.add(text=text, filename="cover.webp", bytefile=io.BytesIO(cover))
     else:
         replies.add("❌ Unknow pack URL", quote=message)
+
+
+def _process_signal_pack(bot: DeltaBot, message: Message, replies: Replies) -> None:
+    title, path = signal.download_pack(bot.account.get_blobdir(), message.text)
+    size = os.stat(path).st_size
+    if size > int(getdefault(bot, "max_size", DEF_MAX_PACK_SIZE)):
+        url = upload(bot, path)
+        if url:
+            replies.add(
+                text=f"Name: {title}\nSize: {sizeof_fmt(size)}\nDownload: {url}",
+                quote=message,
+            )
+        else:
+            replies.add(text=f"❌ Pack too big ({sizeof_fmt(size)})", quote=message)
+    else:
+        name = os.path.basename(path)
+        with open(path, "rb") as file:
+            replies.add(filename=name, bytefile=io.BytesIO(file.read()), quote=message)
+    os.remove(path)

@@ -1,6 +1,5 @@
 """Signal sticker pack downlad tools"""
 
-import functools
 import os
 import random
 import zipfile
@@ -10,22 +9,15 @@ from urllib.parse import quote, quote_plus
 
 import anyio
 import appdirs
-import requests
 from cachelib import FileSystemCache
 from emoji import demojize
 from signalstickers_client import StickersClient
 from signalstickers_client.models.sticker_pack import StickerPack
 
+from .util import session
+
 _cache_dir = appdirs.user_cache_dir("simplebot_stickers")
 _cache = FileSystemCache(_cache_dir, threshold=5000, default_timeout=60 * 60 * 24 * 60)
-_session = requests.Session()
-_session.headers.update(
-    {
-        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:92.0) Gecko/20100101 Firefox/92.0"
-    }
-)
-_session.request = functools.partial(_session.request, timeout=15)  # type: ignore
-MAX_PACK_SIZE = 1024 ** 2 * 20
 MAX_SEARCH_RESULTS = 100
 
 
@@ -73,7 +65,7 @@ def _get_metadata() -> list:
     url = "https://api.signalstickers.com/v1/packs/"
     data = _cache.get(url)
     if not data:
-        with _session.get(url) as resp:
+        with session.get(url) as resp:
             resp.raise_for_status()
             data = resp.json()
         _cache.set(url, data, timeout=60 * 60 * 24 * 3)
@@ -107,27 +99,23 @@ def get_pack_metadata(pack_url: str) -> tuple:
     return text, _get_cached_sticker(pack.cover.id, pack.id, pack.key)
 
 
-def download_pack(base_dir: str, pack_url: str) -> str:
+def download_pack(base_dir: str, pack_url: str) -> tuple:
     pack = _get_cached_pack(*_parse_url(pack_url))
     pack_name = quote(pack.title, safe="")
     with NamedTemporaryFile(
         dir=base_dir,
         prefix=pack_name + "-",
-        suffix=".stickers.zip",
+        suffix=".zip",
         delete=False,
     ) as file:
         zip_path = file.name
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zfile:
-        size = 0
         for sticker in pack.stickers:
             desc = demojize(sticker.emoji, delimiters=("", ""))
             name = os.path.join(pack_name, f"{sticker.id}.{desc}+{sticker.emoji}.webp")
             data = _get_cached_sticker(sticker.id, pack.id, pack.key)
-            size += len(data)
-            if size > MAX_PACK_SIZE:
-                break
             zfile.writestr(name, data)
-    return zip_path
+    return pack.title, zip_path
 
 
 def search(query: str) -> list:
