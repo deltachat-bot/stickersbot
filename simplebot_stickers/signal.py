@@ -26,6 +26,7 @@ _session.headers.update(
 )
 _session.request = functools.partial(_session.request, timeout=15)  # type: ignore
 MAX_PACK_SIZE = 1024 ** 2 * 20
+MAX_SEARCH_RESULTS = 100
 
 
 async def _get_pack(pack_id: str, pack_key: str) -> StickerPack:
@@ -68,7 +69,7 @@ def _get_pack_url(pack_id: str, pack_key: str) -> str:
     return f"sgnl://addstickers/?pack_id={pack_id}&pack_key={pack_key}"
 
 
-def _get_metadata() -> dict:
+def _get_metadata() -> list:
     url = "https://api.signalstickers.com/v1/packs/"
     data = _cache.get(url)
     if not data:
@@ -79,15 +80,15 @@ def _get_metadata() -> dict:
     return data
 
 
-def _get_tags(mpack: dict) -> list:
-    tags = mpack["meta"].get("tags", [])
+def _get_tags(mpack: dict) -> set:
+    tags = set(tag.lower() for tag in mpack["meta"].get("tags", []))
     if mpack["meta"].get("nsfw", False):
-        tags.append("nsfw")
+        tags.add("nsfw")
     if mpack["meta"].get("animated", False):
-        tags.append("animated")
+        tags.add("animated")
     if mpack["meta"].get("original", False):
-        tags.append("original")
-    return list(set(tags))
+        tags.add("original")
+    return set(tags)
 
 
 def is_pack(url: str) -> bool:
@@ -118,15 +119,16 @@ def download_pack(base_dir: str, pack_url: str) -> str:
 
 
 def search(query: str) -> list:
+    query = query.lower()
     data = _get_metadata()
     packs = []
     count = 0
     for pack in data:
-        title = pack["manifest"].get("title", "")
+        title = pack["manifest"].get("title", "").lower()
         if query in title or query in _get_tags(pack):
             packs.append(pack)
             count += 1
-            if count > 100:
+            if count == MAX_SEARCH_RESULTS:
                 break
     return packs
 
