@@ -142,7 +142,7 @@ def search_html(addr: str, query: str) -> str:
         title = pack["manifest"].get("title", "NO TITLE")
         author = pack["manifest"].get("author", "ANONYMOUS")
         tags = ", ".join(_get_tags(pack))
-        html += f'Title: {title}<br/>Author: {author}<br/>Tags: {tags}<br/><a href="{more_url}">MORE</a> | <a href="{url}">DOWNLOAD</a><br/><hr/>'
+        html += f'Title: {title}<br/>Author: {author}<br/>Tags: {tags}<br/>\n<a href="{more_url}">MORE</a> | <a href="{url}">DOWNLOAD</a><br/><hr/>'
     return html
 
 
