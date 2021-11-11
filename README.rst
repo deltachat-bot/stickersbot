@@ -25,6 +25,10 @@ To get sticker packs, browse https://signalstickers.com/ and copy the URL of the
 
 To create an sticker from a normal image send the image to the bot and it will send you back the image as sticker.
 
+Send any text to the bot to search packs matching the given text.
+
+Send an emoji to the bot to get a random sticker associated with that emoji.
+
 Install
 -------
 
