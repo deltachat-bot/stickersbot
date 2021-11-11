@@ -122,7 +122,8 @@ def search(query: str) -> list:
     packs = []
     count = 0
     for pack in data:
-        if query in pack["manifest"]["title"] or query in _get_tags(pack):
+        title = pack["manifest"].get("title", "")
+        if query in title or query in _get_tags(pack):
             packs.append(pack)
             count += 1
             if count > 100:
@@ -135,7 +136,9 @@ def search_html(addr: str, query: str) -> str:
     for pack in search(query):
         url = _get_pack_url(pack["meta"]["id"], pack["meta"]["key"])
         url = f"mailto:{addr}?body={quote_plus(url)}"
-        html += f"{pack['manifest']['title']} - by {pack['manifest']['author']} | <a href=\"{url}\">DOWNLOAD</a><br/><hr/>"
+        title = pack["manifest"].get("title", "NO TITLE")
+        author = pack["manifest"].get("author", "ANONYMOUS")
+        html += f'{title} - by {author}<br/><a href="{url}">DOWNLOAD</a><br/><hr/>'
     return html
 
 
