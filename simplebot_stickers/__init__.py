@@ -85,8 +85,6 @@ def _process_signal_pack(bot: DeltaBot, message: Message, replies: Replies) -> N
             )
         else:
             replies.add(text=f"❌ Pack too big ({sizeof_fmt(size)})", quote=message)
+        os.remove(path)
     else:
-        name = os.path.basename(path)
-        with open(path, "rb") as file:
-            replies.add(filename=name, bytefile=io.BytesIO(file.read()), quote=message)
-    os.remove(path)
+        replies.add(filename=path, quote=message)
