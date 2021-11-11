@@ -8,3 +8,8 @@ class TestPlugin:
             "https://signal.art/addstickers/#pack_id=59d3387717104e38a67f838e7ad0208c&pack_key=56af35841874d6fe82fa2085e8e5ed74dba5d187af007d3b4d8a3711dd722ad7"
         )
         assert msg.filename.endswith("zip")
+
+        msg = mocker.get_one_reply("cat")
+        assert msg.has_html()
+
+        msg = mocker.get_one_reply("❌")  # random behavior

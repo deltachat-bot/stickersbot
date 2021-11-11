@@ -1,3 +1,6 @@
-simplebot==2.0.0
+simplebot==2.3.0
 signalstickers-client==3.1.0
 emoji==1.6.1
+cachelib=0.4.1
+requests==2.26.0
+appdirs==1.4.4
