@@ -12,4 +12,4 @@ class TestPlugin:
         msg = mocker.get_one_reply("cat")
         assert msg.has_html()
 
-        msg = mocker.get_one_reply("❌")  # random behavior
+        assert mocker.get_replies("❌")  # random behavior
