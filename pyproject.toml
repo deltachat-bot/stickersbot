@@ -1,0 +1,10 @@
+[build-system]
+requires = [
+  "setuptools>=45",
+  "setuptools-scm>=6.2",
+  "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "simplebot_stickers/_version.py"
