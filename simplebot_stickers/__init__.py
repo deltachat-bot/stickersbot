@@ -28,8 +28,8 @@ def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
 
     Send me a text to search for sticker packs matching that text.
 
-    Also, you can send me an URL of a Signal sticker pack, and I will send you the pack, for example, send me:
-    sgnl://addstickers/?pack_id=59d3387717104e38a67f838e7ad0208c&pack_key=56af35841874d6fe82fa2085e8e5ed74dba5d187af007d3b4d8a3711dd722ad7
+    Also, you can send me an URL of a Signal sticker pack, and I will send you the pack, for example, something like:
+    sgnl://addstickers/?pack_id=59d338...&pack_key=56af35...
     """
     if message.chat.is_group():
         return
@@ -68,7 +68,9 @@ def info(payload: str, message: Message, replies: Replies) -> None:
     """
     if signal.is_pack(payload):
         text, cover = signal.get_pack_metadata(payload)
-        replies.add(text=text, filename="cover.webp", bytefile=io.BytesIO(cover))
+        replies.add(
+            text=text, filename="cover.webp", bytefile=io.BytesIO(cover), quote=message
+        )
     else:
         replies.add("❌ Unknow pack URL", quote=message)
 
