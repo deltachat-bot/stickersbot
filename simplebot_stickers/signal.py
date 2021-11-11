@@ -17,7 +17,7 @@ from signalstickers_client import StickersClient
 from signalstickers_client.models.sticker_pack import StickerPack
 
 _cache_dir = appdirs.user_cache_dir("simplebot_stickers")
-_cache = FileSystemCache(_cache_dir, threshold=5000, default_timeout=0)
+_cache = FileSystemCache(_cache_dir, threshold=5000, default_timeout=60 * 60 * 24 * 60)
 _session = requests.Session()
 _session.headers.update(
     {
@@ -76,7 +76,7 @@ def _get_metadata() -> list:
         with _session.get(url) as resp:
             resp.raise_for_status()
             data = resp.json()
-        _cache.set(url, data, timeout=60 * 60 * 24 * 7)
+        _cache.set(url, data, timeout=60 * 60 * 24 * 3)
     return data
 
 
