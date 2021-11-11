@@ -96,7 +96,7 @@ def is_pack(url: str) -> bool:
 
 def download_pack(base_dir: str, pack_url: str) -> str:
     pack = _get_cached_pack(*_parse_url(pack_url))
-    pack_name = quote(pack.name, safe="")
+    pack_name = quote(pack.title, safe="")
     with NamedTemporaryFile(
         dir=base_dir,
         prefix=pack_name + "-",
