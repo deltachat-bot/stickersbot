@@ -1,6 +1,11 @@
 Changelog
 =========
 
+`Unreleased`_
+-------------
+
+- if message has image, don't process text.
+
 `2.1.0`_
 --------
 

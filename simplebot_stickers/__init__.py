@@ -36,7 +36,7 @@ def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
 
     if message.filemime.startswith("image/"):
         replies.add(filename=message.filename, viewtype="sticker")
-    if telegram.is_sticker(message.filename):
+    elif telegram.is_sticker(message.filename):
         replies.add(filename=telegram.convert(message.filename), viewtype="sticker")
     elif signal.is_pack(message.text):
         _process_signal_pack(bot, message, replies)
