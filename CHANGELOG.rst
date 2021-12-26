@@ -1,8 +1,8 @@
 Changelog
 =========
 
-`Unreleased`_
--------------
+`2.2.0`_
+--------
 
 - if message has image, don't keep checking for other conditions.
 - save cache in the bot account's folder.
@@ -33,6 +33,7 @@ Changelog
 - initial release
 
 
-.. _Unreleased: https://github.com/adbenitez/simplebot_stickers/compare/v2.1.0...HEAD
+.. _Unreleased: https://github.com/adbenitez/simplebot_stickers/compare/v2.2.0...HEAD
+.. _2.2.0: https://github.com/adbenitez/simplebot_stickers/compare/v2.1.0...v2.2.0
 .. _2.1.0: https://github.com/adbenitez/simplebot_stickers/compare/v2.0.0...v2.1.0
 .. _2.0.0: https://github.com/adbenitez/simplebot_stickers/compare/v1.0.0...v2.0.0
