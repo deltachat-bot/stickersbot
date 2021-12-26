@@ -4,7 +4,8 @@ Changelog
 `Unreleased`_
 -------------
 
-- if message has image, don't process text.
+- if message has image, don't keep checking for other conditions.
+- save cache in the bot account's folder.
 
 `2.1.0`_
 --------

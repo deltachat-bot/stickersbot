@@ -4,20 +4,33 @@ import io
 import os
 
 import simplebot
+from cachelib import FileSystemCache
 from deltachat import Message
 from emoji import get_emoji_regexp
 from simplebot.bot import DeltaBot, Replies
 
-from . import signal, telegram
+from . import telegram
+from .signal import SignalStickers
 from .util import getdefault, sizeof_fmt, upload
 
 DEF_MAX_PACK_SIZE = str(1024 ** 2 * 15)
+signal = SignalStickers()
 
 
 @simplebot.hookimpl
 def deltabot_init(bot: DeltaBot) -> None:
     getdefault(bot, "cloud", "https://0x0.st/")
     getdefault(bot, "max_size", DEF_MAX_PACK_SIZE)
+
+
+@simplebot.hookimpl
+def deltabot_start(bot: DeltaBot) -> None:
+    path = os.path.join(os.path.dirname(bot.account.db_path), __name__)
+    if not os.path.exists(path):
+        os.makedirs(path)
+    signal.cache = FileSystemCache(
+        path, threshold=5000, default_timeout=60 * 60 * 24 * 60
+    )
 
 
 @simplebot.filter

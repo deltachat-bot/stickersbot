@@ -3,7 +3,6 @@ signalstickers-client==3.1.0
 emoji==1.6.1
 cachelib==0.4.1
 requests==2.26.0
-appdirs==1.4.4
 lottie==0.6.10
 CairoSVG==2.5.2
 Pillow==8.4.0
