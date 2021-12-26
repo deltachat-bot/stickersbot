@@ -6,4 +6,4 @@ isort==5.10.1
 pylint==2.11.1
 pylama==7.7.1
 types-emoji==1.2.6
-types-requests==2.25.9
+types-requests==2.26.1
