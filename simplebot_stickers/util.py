@@ -1,6 +1,7 @@
 """Module utilities"""
 
 import functools
+import random
 
 import requests
 from simplebot.bot import DeltaBot
@@ -24,17 +25,21 @@ def sizeof_fmt(num: float) -> str:
 
 
 def upload(bot: DeltaBot, path: str) -> str:
-    url = getdefault(bot, "cloud")
-    if url:
-        with open(path, "rb") as file:
-            with session.post(url, files=dict(file=file)) as resp:
-                if 200 <= resp.status_code <= 300:
-                    return resp.text.strip()
+    urls = getdefault(bot, "cloud").split()
+    random.shuffle(urls)
+    for url in urls:
+        try:
+            with open(path, "rb") as file:
+                with session.post(url, files=dict(file=file)) as resp:
+                    if 200 <= resp.status_code <= 300:
+                        return resp.text.strip()
+        except Exception as ex:
+            bot.logger.exception(ex)
     return ""
 
 
 def getdefault(bot: DeltaBot, key: str, value: str = None) -> str:
-    val = bot.get(key, scope=__name__)
+    val = bot.get(key, scope=__name__).split(".")[0]
     if val is None and value is not None:
         bot.set(key, value, scope=__name__)
         val = value

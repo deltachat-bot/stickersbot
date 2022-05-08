@@ -13,13 +13,15 @@ from . import telegram
 from .signal import SignalStickers
 from .util import getdefault, sizeof_fmt, upload
 
-DEF_MAX_PACK_SIZE = str(1024 ** 2 * 15)
+DEF_MAX_PACK_SIZE = str(1024**2 * 15)
 signal = SignalStickers()
 
 
 @simplebot.hookimpl
 def deltabot_init(bot: DeltaBot) -> None:
-    getdefault(bot, "cloud", "https://0x0.st/")
+    getdefault(
+        bot, "cloud", "https://ttm.sh/ https://envs.sh/ https://x0.at/ https://0x0.st/"
+    )
     getdefault(bot, "max_size", DEF_MAX_PACK_SIZE)
 
 

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+`Unreleased`_
+-------------
+
+- allow to set multiple cloud urls in case one fail another cloud will be tried, by default several clouds are set.
+
 `2.2.0`_
 --------
 
