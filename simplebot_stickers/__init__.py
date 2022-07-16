@@ -46,7 +46,7 @@ def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
     Also, you can send me an URL of a Signal sticker pack, and I will send you the pack, for example, something like:
     sgnl://addstickers/?pack_id=59d338...&pack_key=56af35...
     """
-    if message.chat.is_group():
+    if message.chat.is_multiuser():
         return
 
     if message.filemime.startswith("image/"):
