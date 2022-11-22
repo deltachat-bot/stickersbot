@@ -6,7 +6,7 @@ import os
 import simplebot
 from cachelib import FileSystemCache
 from deltachat import Message
-from emoji import get_emoji_regexp
+from emoji import emoji_count
 from simplebot.bot import DeltaBot, Replies
 
 from . import telegram
@@ -55,7 +55,7 @@ def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
         replies.add(filename=telegram.convert(message.filename), viewtype="sticker")
     elif signal.is_pack(message.text):
         _process_signal_pack(bot, message, replies)
-    elif get_emoji_regexp().fullmatch(message.text):
+    elif emoji_count(message.text):
         pack_url, sticker = signal.get_random_sticker(message.text)
         if pack_url:
             replies.add(
