@@ -1,6 +1,5 @@
 """Event Hooks"""
 
-import io
 import os
 from argparse import Namespace
 from tempfile import TemporaryDirectory
