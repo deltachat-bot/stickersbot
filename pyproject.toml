@@ -1,10 +1,53 @@
 [build-system]
-requires = [
-  "setuptools>=45",
-  "setuptools-scm>=6.2",
-  "wheel",
-]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "stickersbot"
+description = "Sticker packs for all your Delta Chat needs"
+dynamic = ["version"]
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+keywords = ["deltachat", "bot"]
+authors = [
+  {name = "adbenitez", email = "adb@merlinux.eu"},
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "deltabot-cli>=3.0.0,<4.0",
+    "signalstickers-client>=3.1.0",
+    "emoji>=1.6.1",
+    "cachelib>=0.7.0",
+    "requests>=2.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "black",
+  "mypy",
+  "isort",
+  "pylint",
+  "pylama",
+  "pytest",
+  "types-emoji",
+  "types-requests",
+]
+
+[project.scripts]
+stickersbot = "stickersbot:main"
+
 [tool.setuptools_scm]
-write_to = "simplebot_stickers/_version.py"
+# can be empty if no extra settings are needed, presence enables setuptools_scm
+
+[tool.setuptools]
+packages = ["stickersbot"]
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+ignore_missing_imports = "True"

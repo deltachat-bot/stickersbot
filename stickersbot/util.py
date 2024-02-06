@@ -1,10 +1,10 @@
-"""Module utilities"""
+"""Utilities"""
 
 import functools
 import random
+from logging import Logger
 
 import requests
-from simplebot.bot import DeltaBot
 
 session = requests.Session()
 session.headers.update(
@@ -24,24 +24,15 @@ def sizeof_fmt(num: float) -> str:
     return "%.1f%s%s" % (num, "Yi", suffix)  # noqa
 
 
-def upload(bot: DeltaBot, path: str) -> str:
-    urls = getdefault(bot, "cloud").split()
+def upload(logger: Logger, path: str) -> str:
+    urls = ["https://ttm.sh/", "https://envs.sh/", "https://x0.at/", "https://0x0.st/"]
     random.shuffle(urls)
     for url in urls:
         try:
             with open(path, "rb") as file:
-                with session.post(url, files=dict(file=file)) as resp:
+                with session.post(url, files={"file": file}) as resp:
                     if 200 <= resp.status_code <= 300:
                         return resp.text.strip()
         except Exception as ex:
-            bot.logger.exception(ex)
+            logger.exception(ex)
     return ""
-
-
-def getdefault(bot: DeltaBot, key: str, value: str = None) -> str:
-    scope = __name__.split(".")[0]
-    val = bot.get(key, scope=scope)
-    if val is None and value is not None:
-        bot.set(key, value, scope=scope)
-        val = value
-    return val
