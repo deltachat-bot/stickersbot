@@ -6,14 +6,16 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from cachelib import FileSystemCache
-from deltabot_cli import (
-    AttrDict,
+from deltabot_cli import BotCli
+from deltachat2 import (
     Bot,
-    BotCli,
     ChatType,
+    CoreEvent,
     EventType,
+    Message,
+    MsgData,
+    NewMsgEvent,
     events,
-    is_not_known_command,
 )
 from emoji import emoji_count
 from PIL import Image
@@ -33,7 +35,7 @@ def on_init(bot: Bot, _args: Namespace) -> None:
             bot.rpc.set_config(accid, "displayname", "StickersBot")
             status = "I am a Delta Chat bot, send me /help for more info"
             bot.rpc.set_config(accid, "selfstatus", status)
-            bot.rpc.set_config(accid, "delete_server_after", "1")
+            bot.rpc.set_config(accid, "delete_device_after", str(60 * 60 * 24))
 
 
 @cli.on_start
@@ -47,22 +49,27 @@ def on_start(_bot: Bot, args: Namespace) -> None:
 
 
 @cli.on(events.RawEvent)
-def log_event(bot: Bot, accid: int, event: AttrDict) -> None:
+def log_event(bot: Bot, accid: int, event: CoreEvent) -> None:
     if event.kind == EventType.INFO:
         bot.logger.info(event.msg)
     elif event.kind == EventType.WARNING:
         bot.logger.warning(event.msg)
     elif event.kind == EventType.ERROR:
         bot.logger.error(event.msg)
+    elif event.kind == EventType.MSG_DELIVERED:
+        bot.rpc.delete_messages(accid, [event.msg_id])
     elif event.kind == EventType.SECUREJOIN_INVITER_PROGRESS:
         if event.progress == 1000:
-            bot.logger.debug("QR scanned by contact id=%s", event.contact_id)
-            chatid = bot.rpc.create_chat_by_contact_id(accid, event.contact_id)
-            send_help(bot, accid, chatid)
+            if not bot.rpc.get_contact(accid, event.contact_id).is_bot:
+                bot.logger.debug("QR scanned by contact id=%s", event.contact_id)
+                chatid = bot.rpc.create_chat_by_contact_id(accid, event.contact_id)
+                send_help(bot, accid, chatid)
 
 
-@cli.on(events.NewMessage(is_info=False, func=is_not_known_command))
-def on_message(bot: Bot, accid: int, event: AttrDict) -> None:
+@cli.on(events.NewMessage(is_info=False))
+def on_message(bot: Bot, accid: int, event: NewMsgEvent) -> None:
+    if bot.has_command(event.command):
+        return
     msg = event.msg
     chat = bot.rpc.get_basic_chat_info(accid, msg.chat_id)
     if chat.chat_type != ChatType.SINGLE:
@@ -88,29 +95,29 @@ def on_message(bot: Bot, accid: int, event: AttrDict) -> None:
                     attachment.write(sticker)
                 msg_id = bot.rpc.send_sticker(accid, msg.chat_id, filename)
                 bot.rpc.send_msg(
-                    accid, msg.chat_id, {"text": pack_url, "quotedMessageId": msg_id}
+                    accid, msg.chat_id, MsgData(text=pack_url, quoted_message_id=msg_id)
                 )
         else:
             text = f"❌ No sticker found for: {msg.text!r}"
-            bot.rpc.send_msg(accid, msg.chat_id, {"text": text})
+            bot.rpc.send_msg(accid, msg.chat_id, MsgData(text=text))
     elif msg.text:
         selfaddr = bot.rpc.get_config(accid, "configured_addr")
         html = signal.search_html(selfaddr, msg.text)
         if html:
             text = f"Results for: {msg.text!r}"
-            bot.rpc.send_msg(accid, msg.chat_id, {"text": text, "html": html})
+            bot.rpc.send_msg(accid, msg.chat_id, MsgData(text=text, html=html))
         else:
             text = f"❌ No results for: {msg.text!r}"
-            bot.rpc.send_msg(accid, msg.chat_id, {"text": text})
+            bot.rpc.send_msg(accid, msg.chat_id, MsgData(text=text))
 
 
 @cli.on(events.NewMessage(command="/help"))
-def _help(bot: Bot, accid: int, event: AttrDict) -> None:
+def _help(bot: Bot, accid: int, event: NewMsgEvent) -> None:
     send_help(bot, accid, event.msg.chat_id)
 
 
 @cli.on(events.NewMessage(command="/info"))
-def _info(bot: Bot, accid: int, event: AttrDict) -> None:
+def _info(bot: Bot, accid: int, event: NewMsgEvent) -> None:
     msg = event.msg
     if signal.is_pack(event.payload):
         text, cover = signal.get_pack_metadata(event.payload)
@@ -118,14 +125,20 @@ def _info(bot: Bot, accid: int, event: AttrDict) -> None:
             filename = os.path.join(tmp_dir, "cover.webp")
             with open(filename, mode="wb") as attachment:
                 attachment.write(cover)
-            reply = {"text": text, "file": filename, "quotedMessageId": msg.id}
+            reply = MsgData(text=text, file=filename, quoted_message_id=msg.id)
             bot.rpc.send_msg(accid, msg.chat_id, reply)
     else:
-        reply = {"text": "❌ Unknow pack URL", "quotedMessageId": msg.id}
+        reply = MsgData(text="❌ Unknow pack URL", quoted_message_id=msg.id)
         bot.rpc.send_msg(accid, msg.chat_id, reply)
 
 
-def process_signal_pack(bot: Bot, accid: int, msg: AttrDict) -> None:
+@cli.on(events.NewMessage)
+def delete_msgs(bot: Bot, accid: int, event: NewMsgEvent) -> None:
+    """NOTE: This hook must be added at the end so it is not executed before other commands and hooks"""
+    bot.rpc.delete_messages(accid, [event.msg.id])
+
+
+def process_signal_pack(bot: Bot, accid: int, msg: Message) -> None:
     title, path = signal.download_pack(bot.account.get_blobdir(), msg.text)
     size = os.stat(path).st_size
     if size > 1024**2 * 15:
@@ -134,9 +147,11 @@ def process_signal_pack(bot: Bot, accid: int, msg: AttrDict) -> None:
             text = f"Name: {title}\nSize: {sizeof_fmt(size)}\nDownload: {url}"
         else:
             text = f"❌ Pack too big ({sizeof_fmt(size)})"
-        bot.rpc.send_msg(accid, msg.chat_id, {"text": text, "quotedMessageId": msg.id})
+        reply = MsgData(text=text, quoted_message_id=msg.id)
+        bot.rpc.send_msg(accid, msg.chat_id, reply)
     else:
-        bot.rpc.send_msg(accid, msg.chat_id, {"file": path, "quotedMessageId": msg.id})
+        reply = MsgData(file=path, quoted_message_id=msg.id)
+        bot.rpc.send_msg(accid, msg.chat_id, reply)
     os.remove(path)
 
 
@@ -148,12 +163,13 @@ def send_help(bot: Bot, accid: int, chatid: int) -> None:
         "Send me a text to search for sticker packs matching that text.\n",
         "Also, you can send me an URL of a Signal sticker pack, and I will send you the pack,"
         " for example, something that looks like:",
-        "sgnl://addstickers/?pack_id=59d338...&pack_key=56af35..." "",
+        "sgnl://addstickers/?pack_id=59d338...&pack_key=56af35...",
+        "",
         "**Available commands**",
         "/info URL - Get more information about the sticker pack with given URL, example:"
         " /info sgnl://addstickers/?pack_id=59d338...&pack_key=56af35...",
     ]
-    bot.rpc.send_msg(accid, chatid, {"text": "\n".join(lines)})
+    bot.rpc.send_msg(accid, chatid, MsgData(text="\n".join(lines)))
 
 
 def extract_sticker(bot: Bot, filename: str, outdir: str) -> str:
