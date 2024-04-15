@@ -19,8 +19,6 @@ from emoji import emoji_count
 from .signal import SignalStickers
 from .util import sizeof_fmt, upload
 
-DEF_MAX_PACK_SIZE = "15"
-DEF_CLOUDS = "https://ttm.sh/ https://envs.sh/ https://x0.at/ https://0x0.st/"
 signal = SignalStickers()
 cli = BotCli("stickersbot")
 
