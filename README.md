@@ -12,6 +12,9 @@ Delta Chat bot that allows users to get stickers packs and convert normal images
 pip install stickersbot
 ```
 
+**IMPORTANT:** You might need first to install `libwebp` library in your system
+(For Debian/Ubuntu it's libwebp-dev package)
+
 Configure the bot:
 
 ```sh
@@ -30,7 +33,8 @@ Run `stickersbot --help` to see all available options.
 
 To get sticker packs, browse https://signalstickers.com/ and copy the URL of the pack you want (the link in the "+ Add to Signal" button, an URL starting with ``https://signal.art/addstickers``) and send the pack URL to the bot in private, the bot will send you a zip with the sticker pack.
 
-To create an sticker from a normal image send the image to the bot and it will send you back the image as sticker.
+To create an sticker from a normal image send the image to the bot and it will remove the background
+and send you back the image as sticker.
 
 Send any text to the bot to search packs matching the given text.
 

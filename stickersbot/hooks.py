@@ -2,6 +2,7 @@
 
 import os
 from argparse import Namespace
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from cachelib import FileSystemCache
@@ -15,6 +16,8 @@ from deltabot_cli import (
     is_not_known_command,
 )
 from emoji import emoji_count
+from PIL import Image
+from rembg import remove
 
 from .signal import SignalStickers
 from .util import sizeof_fmt, upload
@@ -67,8 +70,13 @@ def on_message(bot: Bot, accid: int, event: AttrDict) -> None:
 
     bot.rpc.markseen_msgs(accid, [msg.id])
 
-    if msg.file_mime and msg.file_mime.startswith("image/"):
-        bot.rpc.send_sticker(accid, msg.chat_id, msg.file)
+    if msg.file_mime and msg.file_mime.lower().startswith("image/"):
+        if msg.file_mime.lower().split("/")[-1] in ("png", "jpg", "jpeg"):
+            with TemporaryDirectory() as tmp_dir:
+                path = extract_sticker(bot, msg.file, tmp_dir)
+                bot.rpc.send_sticker(accid, msg.chat_id, path)
+        else:
+            bot.rpc.send_sticker(accid, msg.chat_id, msg.file)
     elif signal.is_pack(msg.text):
         process_signal_pack(bot, accid, msg)
     elif emoji_count(msg.text):
@@ -134,12 +142,27 @@ def process_signal_pack(bot: Bot, accid: int, msg: AttrDict) -> None:
 
 def send_help(bot: Bot, accid: int, chatid: int) -> None:
     lines = [
-        "Send me an image and I will convert it to a Delta Chat sticker for you.\n",
+        "Send me an image and I will remove the background and convert it to a Delta Chat sticker"
+        " for you.\n",
         "Send me an emoji to get an sticker representing that emoji.\n",
         "Send me a text to search for sticker packs matching that text.\n",
-        "Also, you can send me an URL of a Signal sticker pack, and I will send you the pack, for example, something that looks like:",
+        "Also, you can send me an URL of a Signal sticker pack, and I will send you the pack,"
+        " for example, something that looks like:",
         "sgnl://addstickers/?pack_id=59d338...&pack_key=56af35..." "",
         "**Available commands**",
-        "/info URL - Get more information about the sticker pack with given URL, example: /info sgnl://addstickers/?pack_id=59d338...&pack_key=56af35...",
+        "/info URL - Get more information about the sticker pack with given URL, example:"
+        " /info sgnl://addstickers/?pack_id=59d338...&pack_key=56af35...",
     ]
     bot.rpc.send_msg(accid, chatid, {"text": "\n".join(lines)})
+
+
+def extract_sticker(bot: Bot, filename: str, outdir: str) -> str:
+    img = remove(Image.open(filename))
+    path = Path(outdir, "sticker.webp")
+    try:
+        img.save(path)
+    except Exception as ex:  # noqa: W0718
+        bot.logger.exception(ex)
+        path = Path(outdir, "sticker.png")
+        img.save(path)
+    return str(path)

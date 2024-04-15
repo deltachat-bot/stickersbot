@@ -23,6 +23,8 @@ dependencies = [
     "emoji>=1.6.1",
     "cachelib>=0.7.0",
     "requests>=2.26.0",
+    "pillow>=10.3.0",
+    "rembg>=2.0.56",
 ]
 
 [project.optional-dependencies]
