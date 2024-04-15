@@ -51,7 +51,7 @@ def on_start(_bot: Bot, args: Namespace) -> None:
 @cli.on(events.RawEvent)
 def log_event(bot: Bot, accid: int, event: CoreEvent) -> None:
     if event.kind == EventType.INFO:
-        bot.logger.info(event.msg)
+        bot.logger.debug(event.msg)
     elif event.kind == EventType.WARNING:
         bot.logger.warning(event.msg)
     elif event.kind == EventType.ERROR:
