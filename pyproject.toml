@@ -27,6 +27,9 @@ dependencies = [
     "rembg>=2.0.56",
 ]
 
+[project.urls]
+Homepage = "https://github.com/deltachat-bot/stickersbot"
+
 [project.optional-dependencies]
 dev = [
   "black",
