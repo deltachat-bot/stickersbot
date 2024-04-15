@@ -31,7 +31,7 @@ def upload(logger: Logger, path: str) -> str:
         try:
             with open(path, "rb") as file:
                 with session.post(url, files={"file": file}) as resp:
-                    if 200 <= resp.status_code <= 300:
+                    if 200 <= resp.status_code <= 300 and resp.text.strip():
                         return resp.text.strip()
         except Exception as ex:  # noqa
             logger.exception(ex)
