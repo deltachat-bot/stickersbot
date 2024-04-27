@@ -47,6 +47,7 @@ stickersbot = "stickersbot:main"
 
 [tool.setuptools_scm]
 # can be empty if no extra settings are needed, presence enables setuptools_scm
+version_file = "stickersbot/_version.py"
 
 [tool.setuptools]
 packages = ["stickersbot"]

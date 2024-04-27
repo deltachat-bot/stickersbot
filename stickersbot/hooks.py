@@ -21,11 +21,13 @@ from emoji import emoji_count
 from PIL import Image
 from rembg import remove
 
+from ._version import __version__
 from .signal import SignalStickers
 from .util import sizeof_fmt, upload
 
 signal = SignalStickers()
 cli = BotCli("stickersbot")
+cli.add_generic_option("-v", "--version", action="version", version=__version__)
 
 
 @cli.on_init
