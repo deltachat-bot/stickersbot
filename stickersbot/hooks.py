@@ -132,9 +132,8 @@ def _info(bot: Bot, accid: int, event: NewMsgEvent) -> None:
         bot.rpc.send_msg(accid, msg.chat_id, reply)
 
 
-@cli.on(events.NewMessage)
+@cli.after(events.NewMessage)
 def delete_msgs(bot: Bot, accid: int, event: NewMsgEvent) -> None:
-    """NOTE: This hook must be added at the end so it is not executed before other commands and hooks"""
     bot.rpc.delete_messages(accid, [event.msg.id])
 
 
