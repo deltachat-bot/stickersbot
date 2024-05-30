@@ -140,20 +140,20 @@ def delete_msgs(bot: Bot, accid: int, event: NewMsgEvent) -> None:
 
 
 def process_signal_pack(bot: Bot, accid: int, msg: Message) -> None:
-    title, path = signal.download_pack(bot.account.get_blobdir(), msg.text)
-    size = os.stat(path).st_size
-    if size > 1024**2 * 15:
-        url = upload(bot.logger, path)
-        if url:
-            text = f"Name: {title}\nSize: {sizeof_fmt(size)}\nDownload: {url}"
+    with TemporaryDirectory() as tmp_dir:
+        title, path = signal.download_pack(tmp_dir, msg.text)
+        size = os.stat(path).st_size
+        if size > 1024**2 * 15:
+            url = upload(bot.logger, path)
+            if url:
+                text = f"Name: {title}\nSize: {sizeof_fmt(size)}\nDownload: {url}"
+            else:
+                text = f"❌ Pack too big ({sizeof_fmt(size)})"
+            reply = MsgData(text=text, quoted_message_id=msg.id)
+            bot.rpc.send_msg(accid, msg.chat_id, reply)
         else:
-            text = f"❌ Pack too big ({sizeof_fmt(size)})"
-        reply = MsgData(text=text, quoted_message_id=msg.id)
-        bot.rpc.send_msg(accid, msg.chat_id, reply)
-    else:
-        reply = MsgData(file=path, quoted_message_id=msg.id)
-        bot.rpc.send_msg(accid, msg.chat_id, reply)
-    os.remove(path)
+            reply = MsgData(file=path, quoted_message_id=msg.id)
+            bot.rpc.send_msg(accid, msg.chat_id, reply)
 
 
 def send_help(bot: Bot, accid: int, chatid: int) -> None:
