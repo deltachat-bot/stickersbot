@@ -41,7 +41,7 @@ class SignalStickers:
         return sticker
 
     def _get_metadata(self) -> list:
-        url = "https://api.signalstickers.com/v1/packs/"
+        url = "https://api.signalstickers.org/v1/packs/"
         data = self.cache.get(url)
         if not data:
             with session.get(url) as resp:
