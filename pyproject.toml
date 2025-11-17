@@ -24,7 +24,7 @@ dependencies = [
     "cachelib>=0.7.0",
     "requests>=2.26.0",
     "pillow>=10.3.0",
-    "rembg>=2.0.56",
+    "rembg[cpu]>=2.0.68",
 ]
 
 [project.urls]
