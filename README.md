@@ -18,7 +18,13 @@ pip install stickersbot
 Configure the bot:
 
 ```sh
-stickersbot init bot@example.com PASSWORD
+stickersbot init DCACCOUNT:https://nine.testrun.org/new
+```
+
+To get in contact with the bot, get the bot's invite link:
+
+```sh
+stickersbot link
 ```
 
 Start the bot:
