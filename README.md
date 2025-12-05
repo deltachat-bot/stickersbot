@@ -37,7 +37,7 @@ Run `stickersbot --help` to see all available options.
 
 ## Usage
 
-* To get sticker packs, browse https://signalstickers.com/ and copy the URL of the pack you want (the link in the "+ Add to Signal" button, an URL starting with ``https://signal.art/addstickers``) and send the pack URL to the bot in private, the bot will send you a zip with the sticker pack.
+* To get sticker packs, browse https://signalstickers.org/ and copy the URL of the pack you want (the link in the "+ Add to Signal" button, an URL starting with ``https://signal.art/addstickers``) and send the pack URL to the bot in private, the bot will send you a zip with the sticker pack.
 * To create an sticker from a normal image send the image to the bot and it will remove the background and send you back the image as sticker.
 * Send any text to the bot to search packs matching the given text.
 * Send an emoji to the bot to get a random sticker associated with that emoji.
