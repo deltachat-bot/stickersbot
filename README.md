@@ -1,15 +1,21 @@
 # StickersBot
 
 [![Latest Release](https://img.shields.io/pypi/v/stickersbot.svg)](https://pypi.org/project/stickersbot)
-[![CI](https://github.com/deltachat-bot/stickersbot/actions/workflows/python-ci.yml/badge.svg)](https://github.com/deltachat-bot/stickersbot/actions/workflows/python-ci.yml)
+[![CI](https://github.com/adbenitez/stickersbot/actions/workflows/python-ci.yml/badge.svg)](https://github.com/adbenitez/stickersbot/actions/workflows/python-ci.yml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Delta Chat bot that allows users to get stickers packs and convert normal images to stickers.
+ArcaneChat bot that allows users to get stickers packs and convert normal images to stickers.
 
 ## Installation and configuration
 
 ```sh
 pip install stickersbot
+```
+
+**WARNING:** If you see some error related to `httpx` (dependency of signalstickers-client), run:
+
+```sh
+pip install httpx==0.28.1
 ```
 
 **IMPORTANT:** You might need first to install `libwebp` library in your system
@@ -18,7 +24,7 @@ pip install stickersbot
 Configure the bot:
 
 ```sh
-stickersbot init DCACCOUNT:https://nine.testrun.org/new
+stickersbot init DCACCOUNT:arcanechat.me
 ```
 
 To get in contact with the bot, get the bot's invite link:

@@ -10,10 +10,14 @@ from deltabot_cli import BotCli
 from deltachat2 import (
     Bot,
     ChatType,
-    CoreEvent,
     EventType,
+    EventTypeError,
+    EventTypeInfo,
+    EventTypeMsgDelivered,
+    EventTypeSecurejoinInviterProgress,
+    EventTypeWarning,
     Message,
-    MsgData,
+    MessageData,
     NewMsgEvent,
     events,
 )
@@ -51,21 +55,22 @@ def on_start(_bot: Bot, args: Namespace) -> None:
 
 
 @cli.on(events.RawEvent)
-def log_event(bot: Bot, accid: int, event: CoreEvent) -> None:
-    if event.kind == EventType.INFO:
-        bot.logger.debug(event.msg)
-    elif event.kind == EventType.WARNING:
-        bot.logger.warning(event.msg)
-    elif event.kind == EventType.ERROR:
-        bot.logger.error(event.msg)
-    elif event.kind == EventType.MSG_DELIVERED:
-        bot.rpc.delete_messages(accid, [event.msg_id])
-    elif event.kind == EventType.SECUREJOIN_INVITER_PROGRESS:
-        if event.progress == 1000:
-            if not bot.rpc.get_contact(accid, event.contact_id).is_bot:
-                bot.logger.debug("QR scanned by contact id=%s", event.contact_id)
-                chatid = bot.rpc.create_chat_by_contact_id(accid, event.contact_id)
-                send_help(bot, accid, chatid)
+def log_event(bot: Bot, accid: int, event: EventType) -> None:
+    match event:
+        case EventTypeInfo():
+            bot.logger.debug(event.msg)
+        case EventTypeWarning():
+            bot.logger.warning(event.msg)
+        case EventTypeError():
+            bot.logger.error(event.msg)
+        case EventTypeMsgDelivered():
+            bot.rpc.delete_messages(accid, [event.msg_id])
+        case EventTypeSecurejoinInviterProgress():
+            if event.progress == 1000:
+                if not bot.rpc.get_contact(accid, event.contact_id).is_bot:
+                    bot.logger.debug("QR scanned by contact id=%s", event.contact_id)
+                    chatid = bot.rpc.create_chat_by_contact_id(accid, event.contact_id)
+                    send_help(bot, accid, chatid)
 
 
 @cli.on(events.NewMessage(is_info=False))
@@ -97,20 +102,22 @@ def on_message(bot: Bot, accid: int, event: NewMsgEvent) -> None:
                     attachment.write(sticker)
                 msg_id = bot.rpc.send_sticker(accid, msg.chat_id, filename)
                 bot.rpc.send_msg(
-                    accid, msg.chat_id, MsgData(text=pack_url, quoted_message_id=msg_id)
+                    accid,
+                    msg.chat_id,
+                    MessageData(text=pack_url, quoted_message_id=msg_id),
                 )
         else:
             text = f"❌ No sticker found for: {msg.text!r}"
-            bot.rpc.send_msg(accid, msg.chat_id, MsgData(text=text))
+            bot.rpc.send_msg(accid, msg.chat_id, MessageData(text=text))
     elif msg.text:
         selfaddr = bot.rpc.get_config(accid, "configured_addr")
         html = signal.search_html(selfaddr, msg.text)
         if html:
             text = f"Results for: {msg.text!r}"
-            bot.rpc.send_msg(accid, msg.chat_id, MsgData(text=text, html=html))
+            bot.rpc.send_msg(accid, msg.chat_id, MessageData(text=text, html=html))
         else:
             text = f"❌ No results for: {msg.text!r}"
-            bot.rpc.send_msg(accid, msg.chat_id, MsgData(text=text))
+            bot.rpc.send_msg(accid, msg.chat_id, MessageData(text=text))
 
 
 @cli.on(events.NewMessage(command="/help"))
@@ -127,10 +134,10 @@ def _info(bot: Bot, accid: int, event: NewMsgEvent) -> None:
             filename = os.path.join(tmp_dir, "cover.webp")
             with open(filename, mode="wb") as attachment:
                 attachment.write(cover)
-            reply = MsgData(text=text, file=filename, quoted_message_id=msg.id)
+            reply = MessageData(text=text, file=filename, quoted_message_id=msg.id)
             bot.rpc.send_msg(accid, msg.chat_id, reply)
     else:
-        reply = MsgData(text="❌ Unknow pack URL", quoted_message_id=msg.id)
+        reply = MessageData(text="❌ Unknow pack URL", quoted_message_id=msg.id)
         bot.rpc.send_msg(accid, msg.chat_id, reply)
 
 
@@ -149,10 +156,10 @@ def process_signal_pack(bot: Bot, accid: int, msg: Message) -> None:
                 text = f"Name: {title}\nSize: {sizeof_fmt(size)}\nDownload: {url}"
             else:
                 text = f"❌ Pack too big ({sizeof_fmt(size)})"
-            reply = MsgData(text=text, quoted_message_id=msg.id)
+            reply = MessageData(text=text, quoted_message_id=msg.id)
             bot.rpc.send_msg(accid, msg.chat_id, reply)
         else:
-            reply = MsgData(file=path, quoted_message_id=msg.id)
+            reply = MessageData(file=path, quoted_message_id=msg.id)
             bot.rpc.send_msg(accid, msg.chat_id, reply)
 
 
@@ -170,7 +177,7 @@ def send_help(bot: Bot, accid: int, chatid: int) -> None:
         "/info URL - Get more information about the sticker pack with given URL, example:"
         " /info sgnl://addstickers/?pack_id=59d338...&pack_key=56af35...",
     ]
-    bot.rpc.send_msg(accid, chatid, MsgData(text="\n".join(lines)))
+    bot.rpc.send_msg(accid, chatid, MessageData(text="\n".join(lines)))
 
 
 def extract_sticker(bot: Bot, filename: str, outdir: str) -> str:

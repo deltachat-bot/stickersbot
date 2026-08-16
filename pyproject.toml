@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stickersbot"
-description = "Sticker packs for all your Delta Chat needs"
+description = "Sticker packs for all your ArcaneChat needs"
 dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.10"
-keywords = ["deltachat", "bot"]
+keywords = ["arcanechat", "bot"]
 authors = [
-  {name = "adbenitez", email = "adb@merlinux.eu"},
+  {name = "adbenitez", email = "adb@arcanechat.me"},
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -18,7 +18,7 @@ classifiers = [
   "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
 ]
 dependencies = [
-    "deltabot-cli>=8.0.0,<9.0",
+    "deltabot-cli>=9.1.0,<10.0",
     "signalstickers-client>=3.3.0",
     "emoji>=2.15.0",
     "cachelib>=0.13.0",
@@ -28,7 +28,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/deltachat-bot/stickersbot"
+Homepage = "https://github.com/adbenitez/stickersbot"
 
 [project.optional-dependencies]
 dev = [
@@ -36,11 +36,8 @@ dev = [
   "mypy",
   "isort",
   "pylint",
-  "pylama",
-  "pytest",
   "types-emoji",
   "types-requests",
-  "setuptools",
 ]
 
 [project.scripts]
@@ -58,3 +55,8 @@ profile = "black"
 
 [tool.mypy]
 ignore_missing_imports = "True"
+
+[tool.pylint.main]
+ignore-patterns = [
+  "_version.py",
+]
